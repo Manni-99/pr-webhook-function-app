@@ -11,6 +11,11 @@ import { ServiceBusClient } from "@azure/service-bus";
 interface PullRequestPayload {
   action: string;
   pull_request: {
+    number: number;
+    head: {
+      ref: string;
+      sha: string;
+    }
     html_url: string;
     title: string;
     user: {
@@ -92,12 +97,9 @@ const githubWebhook = async function (
   // At this point, the request is a verified "pull_request opened" event.
   // Now, we can extract the relevant information and send it to Service Bus.
   const messageBody = {
-    pullRequestUrl: payload.pull_request.html_url,
-    title: payload.pull_request.title,
-    author: payload.pull_request.user.login,
-    repository: payload.repository.full_name,
-    eventType: githubEvent,
-    eventAction: payload.action,
+    prNumber: payload.pull_request.number,
+    branch: payload.pull_request.head.ref,
+    repoFullName: payload.repository.full_name
   };
 
   try {
